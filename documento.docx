@@ -1,0 +1,180 @@
+ Documentação do Backend - Gerenciador de Tarefas
+🛠️ Tecnologias utilizadas:
+Node.js
+
+Express
+
+Prisma ORM
+
+SQLite
+
+JWT (autenticação)
+
+Bcrypt (criptografia de senha)
+
+Nodemon (desenvolvimento)
+
+Thunder Client (testes)
+
+📁 Estrutura de Pastas
+pgsql
+Copiar
+Editar
+backend/
+│
+├── controllers/
+│   ├── authController.js
+│   └── taskController.js
+│
+├── middlewares/
+│   └── authMiddleware.js
+│
+├── routes/
+│   ├── authRoutes.js
+│   └── taskRoutes.js
+│
+├── prisma/
+│   ├── schema.prisma
+│
+├── node_modules/
+├── package.json
+├── .env
+└── server.js
+⚙️ Configuração
+.env
+env
+Copiar
+Editar
+DATABASE_URL="file:./dev.db"
+JWT_SECRET=sua_chave_secreta
+🔢 Modelos Prisma
+schema.prisma
+prisma
+Copiar
+Editar
+model User {
+  id       Int     @id @default(autoincrement())
+  name     String
+  email    String  @unique
+  password String
+  tasks    Task[]
+}
+
+model Task {
+  id       Int      @id @default(autoincrement())
+  title    String
+  category String
+  date     DateTime
+  done     Boolean  @default(false)
+  user     User     @relation(fields: [userId], references: [id])
+  userId   Int
+}
+🔐 Autenticação
+POST /auth/register
+Registra um novo usuário.
+
+Body:
+json
+Copiar
+Editar
+{
+  "name": "Aline",
+  "email": "aline@email.com",
+  "password": "123456"
+}
+POST /auth/login
+Realiza login e retorna token JWT.
+
+Body:
+json
+Copiar
+Editar
+{
+  "email": "aline@email.com",
+  "password": "123456"
+}
+Resposta:
+json
+Copiar
+Editar
+{
+  "token": "eyJh...seu_token_jwt"
+}
+✅ Rotas de Tarefas (protegidas por JWT)
+Headers:
+http
+Copiar
+Editar
+Authorization: Bearer SEU_TOKEN_JWT
+GET /tasks
+Lista as tarefas do usuário logado.
+
+POST /tasks
+Cria uma nova tarefa.
+
+Body:
+json
+Copiar
+Editar
+{
+  "title": "Estudar Node.js",
+  "category": "estudo",
+  "date": "2025-06-03"
+}
+PUT /tasks/:id
+Edita uma tarefa.
+
+Body:
+json
+Copiar
+Editar
+{
+  "title": "Estudar Prisma",
+  "category": "trabalho",
+  "date": "2025-06-03"
+}
+DELETE /tasks/:id
+Deleta uma tarefa.
+
+PATCH /tasks/:id/complete
+Marca uma tarefa como concluída ou não.
+
+Body:
+json
+Copiar
+Editar
+{
+  "completed": true
+}
+📊 Estatísticas (Perfil)
+Retornadas automaticamente junto com GET /tasks:
+
+json
+Copiar
+Editar
+{
+  "tasks": [...],
+  "stats": {
+    "totalTasks": 10,
+    "doneTasks": 4,
+    "inProgressTasks": 6
+  }
+}
+▶️ Comandos úteis
+bash
+Copiar
+Editar
+# Instalar dependências
+npm install
+
+# Rodar em desenvolvimento
+npx nodemon server.js
+
+# Rodar uma vez sem nodemon
+node server.js
+
+# Rodar migrations e gerar banco
+npx prisma migrate dev --name init
+
+# Visualizar o banco (opcional)
+npx prisma studio
